@@ -19,10 +19,6 @@ public class UserService {
 	}
 
 	public Optional<User> getUserById(Long userId) {
-		User user = userDao.findOne(userId);
-		if (null == user) {
-			return Optional.ofNullable(null);
-		}
-		return Optional.of(user);
+		return Optional.ofNullable(userDao.findOne(userId));
 	}
 }
