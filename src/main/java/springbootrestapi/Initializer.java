@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories
 @EnableJpaAuditing
 public class Initializer implements ApplicationRunner {
-
+	
 	public static void main(String[] args) {
 		SpringApplication.run(Initializer.class, args);
 	}

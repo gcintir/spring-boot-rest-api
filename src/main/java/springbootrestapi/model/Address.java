@@ -8,31 +8,30 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "NOTE")
+@Table(name = "ADDRESS")
 @EntityListeners(AuditingEntityListener.class)
-public class Note {
-
+public class Address {
 	@Id
 	@Column(name = "ID")
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 
-	@Column(name = "TITLE", nullable = false, length = 50)
-	private String title;
+	@Column(name = "COUNTRY", nullable = false, length = 50)
+	private String country;
 
-	@Column(name = "DESCRIPTION", nullable = true, length = 1024)
-	private String description;
+	@Column(name = "CITY", nullable = false, length = 50)
+	private String city;
 
-	@ManyToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "user_id", nullable = false)
 	private User user;
 
-	public void Noet() {
+	public Address() {
 
 	}
 
@@ -44,20 +43,20 @@ public class Note {
 		this.id = id;
 	}
 
-	public String getTitle() {
-		return title;
+	public String getCountry() {
+		return country;
 	}
 
-	public void setTitle(String title) {
-		this.title = title;
+	public void setCountry(String country) {
+		this.country = country;
 	}
 
-	public String getDescription() {
-		return description;
+	public String getCity() {
+		return city;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
+	public void setCity(String city) {
+		this.city = city;
 	}
 
 	public User getUser() {
@@ -67,7 +66,5 @@ public class Note {
 	public void setUser(User user) {
 		this.user = user;
 	}
-	
-	
 
 }

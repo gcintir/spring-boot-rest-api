@@ -1,12 +1,18 @@
 package springbootrestapi.model;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -36,6 +42,12 @@ public class User {
 	@Temporal(TemporalType.TIMESTAMP)
 	@LastModifiedDate
 	private Date lastModifiedAt;
+
+	@OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
+	private Set<Note> notes = new HashSet<Note>();
+
+	@OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, mappedBy = "user")
+	private Address address;
 
 	public User() {
 		super();
@@ -71,6 +83,22 @@ public class User {
 
 	public void setLastModifiedAt(Date lastModifiedAt) {
 		this.lastModifiedAt = lastModifiedAt;
+	}
+
+	public Set<Note> getNotes() {
+		return notes;
+	}
+
+	public void setNotes(Set<Note> notes) {
+		this.notes = notes;
+	}
+
+	public Address getAddress() {
+		return address;
+	}
+
+	public void setAddress(Address address) {
+		this.address = address;
 	}
 
 }
