@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,26 +31,25 @@ public class UserRestController {
 
 	@Autowired
 	private ModelMapper modelMapper;
-
+	
+	
 	@RequestMapping(value = "/users", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE,  produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getAllUsers() {
-
-		ApiResponseDto response = null;
+		
+		ResponseEntity response = null;
 		try {
 			Optional data = userService.getAllUsers();
 			if (data.isPresent()) {
-				List<User> users = (List<User>) data.get();
-				response = new ApiResponseDto(Response.SUCCESS,
-						users.stream().map(user -> convertToDto(user)).collect(Collectors.toList()));
+				List<User> users = (List<User>) data.get();				
+				response = new ResponseEntity<>(new ApiResponseDto(Response.SUCCESS,
+						users.stream().map(user -> convertToDto(user)).collect(Collectors.toList())), HttpStatus.OK); 
 			} else {
-				response = new ApiResponseDto(Response.SUCCESS);
+				response =  new ResponseEntity<>(new ApiResponseDto(Response.NOT_FOUND), HttpStatus.NOT_FOUND);
 			}
 		} catch (Exception ex) {
 			ex.printStackTrace();
 		} finally {
-			if (null == response) {
-				response = new ApiResponseDto(Response.INTERNAL_SERVER_ERROR);
-			}
+			checkResponseEntityForNull(response);
 		}
 		return ResponseEntity.ok(response);
 
@@ -57,26 +58,25 @@ public class UserRestController {
 	@RequestMapping(value = "/users/{userId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getUserByUserId(@PathVariable("userId") Long userId) {
 		
-		ApiResponseDto response = null;
+		ResponseEntity response = null;
 		try {
 			Optional data = userService.getUserById(userId);
 			if (data.isPresent()) {
 				User user = (User) data.get();
-				response = new ApiResponseDto(Response.SUCCESS, convertToDto(user));
-			}else {
-				response = new ApiResponseDto(Response.NOT_FOUND);
+				response = new ResponseEntity<>(new ApiResponseDto(Response.SUCCESS, convertToDto(user)), HttpStatus.OK);
+			} else {
+				response =  new ResponseEntity<>(new ApiResponseDto(Response.NOT_FOUND), HttpStatus.NOT_FOUND);
 			}
-		}catch (Exception ex) {
-			ex.printStackTrace();
-		} finally {
-			if (null == response) {
-				response = new ApiResponseDto(Response.INTERNAL_SERVER_ERROR);
-			}
+		}finally {
+			checkResponseEntityForNull(response);
 		}
-		return ResponseEntity.ok(response);
-
+		return response;
 	}
-
+	
+	private ResponseEntity checkResponseEntityForNull(ResponseEntity response) {
+		return response == null ? new ResponseEntity<>(new ApiResponseDto(Response.INTERNAL_SERVER_ERROR), HttpStatus.INTERNAL_SERVER_ERROR) : response; 
+	}
+	
 	private UserDto convertToDto(User user) {
 		UserDto userDto = modelMapper.map(user, UserDto.class);
 		userDto.setCreationTime(user.getCreatedAt());
