@@ -21,4 +21,22 @@ public class UserService {
 	public Optional<User> getUserById(Long userId) {
 		return Optional.ofNullable(userDao.findOne(userId));
 	}
+	
+	public User saveUser(String name) {
+		User user = new User();
+		user.setName(name);
+		user = userDao.save(user);
+		return user;
+	}
+	
+	public void deleteUser(Long id) {
+		userDao.delete(id);
+	}
+	
+	public User updateUser(Long id, String name) {
+		User user = userDao.findOne(id);
+		user.setName(name);
+		return userDao.save(user);
+	}
+	
 }

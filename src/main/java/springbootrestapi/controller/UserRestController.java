@@ -4,20 +4,25 @@ import org.modelmapper.ModelMapper;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import springbootrestapi.dto.AddressDto;
 import springbootrestapi.dto.ApiResponseDto;
+import springbootrestapi.dto.RecordNotfoundException;
 import springbootrestapi.dto.ResponseType.Response;
 import springbootrestapi.dto.UserDto;
+import springbootrestapi.dto.UserSaveDto;
 import springbootrestapi.model.User;
 import springbootrestapi.service.UserService;
 
@@ -51,13 +56,23 @@ public class UserRestController {
 		} finally {
 			checkResponseEntityForNull(response);
 		}
-		return ResponseEntity.ok(response);
+		return response;
 
 	}
 
 	@RequestMapping(value = "/users/{userId}", method = RequestMethod.GET, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 	public ResponseEntity<Object> getUserByUserId(@PathVariable("userId") Long userId) {
-		
+
+		ResponseEntity response = null;
+		Optional data = userService.getUserById(userId);
+		if (data.isPresent()) {
+			User user = (User) data.get();
+			response = new ResponseEntity<>(new ApiResponseDto(Response.SUCCESS, convertToDto(user)), HttpStatus.OK);
+		} else {
+			throw new RecordNotfoundException("record not found");
+		}
+		return response;
+		/*
 		ResponseEntity response = null;
 		try {
 			Optional data = userService.getUserById(userId);
@@ -66,6 +81,62 @@ public class UserRestController {
 				response = new ResponseEntity<>(new ApiResponseDto(Response.SUCCESS, convertToDto(user)), HttpStatus.OK);
 			} else {
 				response =  new ResponseEntity<>(new ApiResponseDto(Response.NOT_FOUND), HttpStatus.NOT_FOUND);
+			}
+		}finally {
+			checkResponseEntityForNull(response);
+		}
+		return response; */
+	}
+	
+	@RequestMapping(value = "/users", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> saveUser(@Valid @RequestBody UserSaveDto userSaveDto) {
+		
+		ResponseEntity response = null;
+		try {
+			if (null != userSaveDto && null != userSaveDto.getName()) {
+				User user = userService.saveUser(userSaveDto.getName());
+				response = new ResponseEntity<>(new ApiResponseDto(Response.SUCCESS, convertToDto(user)), HttpStatus.OK);
+			} else {
+				response =  new ResponseEntity<>(new ApiResponseDto(Response.INVALID_PARAMETERS), HttpStatus.BAD_REQUEST);
+			}
+		}finally {
+			checkResponseEntityForNull(response);
+		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/users/{id}", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> updateUser(@PathVariable("id") Long id, @RequestBody UserSaveDto userSaveDto) {
+		
+		ResponseEntity response = null;
+		try {
+			if (null != id && null != userSaveDto && null != userSaveDto.getName()) {
+				User user = userService.updateUser(id, userSaveDto.getName());
+				response = new ResponseEntity<>(new ApiResponseDto(Response.SUCCESS, convertToDto(user)), HttpStatus.OK);
+			} else {
+				response =  new ResponseEntity<>(new ApiResponseDto(Response.INVALID_PARAMETERS), HttpStatus.BAD_REQUEST);
+			}
+		}finally {
+			checkResponseEntityForNull(response);
+		}
+		return response;
+	}
+	
+	@RequestMapping(value = "/users/{id}", method = RequestMethod.DELETE, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+	public ResponseEntity<Object> updateUser(@PathVariable("id") Long id) {
+		
+		ResponseEntity response = null;
+		try {
+			if (null != id) {
+				Optional data = userService.getUserById(id);
+				if (data.isPresent()) {
+					userService.deleteUser(id);
+					response = new ResponseEntity<>(new ApiResponseDto(Response.SUCCESS), HttpStatus.OK);
+				} else {
+					response = new ResponseEntity<>(new ApiResponseDto(Response.NOT_FOUND), HttpStatus.OK);
+				}
+			} else {
+				response =  new ResponseEntity<>(new ApiResponseDto(Response.INVALID_PARAMETERS), HttpStatus.BAD_REQUEST);
 			}
 		}finally {
 			checkResponseEntityForNull(response);

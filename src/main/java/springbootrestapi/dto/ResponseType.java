@@ -4,7 +4,8 @@ public class ResponseType {
 
 	public static enum Response {
 
-		SUCCESS(0, "Success"), FAILURE(1, "Failure"), INTERNAL_SERVER_ERROR(2, "Internal Server Error"), NOT_FOUND(3, "Not found");
+		SUCCESS(0, "Success"), FAILURE(1, "Failure"), INTERNAL_SERVER_ERROR(2, "Internal Server Error"), NOT_FOUND(3, "Not found"),
+		INVALID_PARAMETERS(4, "Invalid parameter(s)"), BAD_REQUEST(5, "Bad request");
 
 		private final int code;
 		private final String text;
